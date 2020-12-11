@@ -42,7 +42,7 @@
       in
         builtins.foldl' op [] paths;
 
-    mkFlakePackages = system: inputs: self: super:
+    mkFlakePackages = system: inputs: _: _:
       let
         fold = pkgs: name:
           pkgs ++ [ inputs.${name}.defaultPackage.${system} ];
