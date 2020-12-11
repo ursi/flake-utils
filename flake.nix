@@ -1,4 +1,6 @@
 {
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
   outputs = { self, flake-utils }: {
     builders.simple-js = {
       name,
