@@ -1,7 +1,7 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, flake-utils }: {
+  outputs = { self, nixpkgs, flake-utils }: rec {
     builders.simple-js = {
       name,
       version,
@@ -31,6 +31,17 @@
           }
         );
 
+    lib.attrsByPaths = paths: set:
+      let
+        getPath = set: path:
+          with nixpkgs.lib;
+          attrByPath (splitString "." path) null set;
+
+        op = results: path:
+          results ++ [ (getPath set path) ];
+      in
+        builtins.foldl' op [] paths;
+
     makeFlakePackages = system: inputs: self: super:
       let
         fold = pkgs: name:
@@ -39,5 +50,21 @@
         flakePackages = builtins.foldl' fold [] (builtins.attrNames inputs);
       in
         { inherit flakePackages; };
-    };
+
+    mkShell = shellFromNixpkgs: nixpkgs:
+      flake-utils.lib.eachDefaultSystem
+        (system:
+          {
+            devShell = shellFromNixpkgs nixpkgs.legacyPackages.${system};
+          }
+        );
+
+    simpleShell = buildInputs:
+      mkShell
+        (nixpkgs:
+          nixpkgs.mkShell {
+            buildInputs = lib.attrsByPaths buildInputs nixpkgs;
+          }
+        );
+  };
 }
