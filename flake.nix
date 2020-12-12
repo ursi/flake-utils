@@ -39,20 +39,16 @@
             (splitString "." path)
             (throw "the attribute \"${path}\" does not exist")
             set;
-
-        op = results: path:
-          results ++ [ (getPath set path) ];
       in
-        builtins.foldl' op [] paths;
+        map (getPath set) paths;
 
     mkFlakePackages = system: inputs: _: _:
-      let
-        fold = pkgs: name:
-          pkgs ++ [ inputs.${name}.defaultPackage.${system} ];
-
-        flakePackages = builtins.foldl' fold [] (builtins.attrNames inputs);
-      in
-        { inherit flakePackages; };
+        {
+          flakePackages =
+            map
+              (name: inputs.${name}.defaultPackage.${system})
+              (builtins.attrNames inputs);
+        };
 
     mkShell = shellFromNixpkgs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
