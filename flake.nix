@@ -35,7 +35,10 @@
       let
         getPath = set: path:
           with nixpkgs.lib;
-          attrByPath (splitString "." path) null set;
+          attrByPath
+            (splitString "." path)
+            (throw "the attribute \"${path}\" does not exist")
+            set;
 
         op = results: path:
           results ++ [ (getPath set path) ];
