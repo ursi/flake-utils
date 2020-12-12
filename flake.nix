@@ -37,7 +37,7 @@
           with nixpkgs.lib;
           attrByPath
             (splitString "." path)
-            (throw "the attribute \"${path}\" does not exist")
+            (throw "attribute does not exist: ${path}")
             set;
       in
         map (getPath set) paths;
