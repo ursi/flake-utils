@@ -50,19 +50,19 @@
               (builtins.attrNames inputs);
         };
 
-    mkShell = shellFromNixpkgs: nixpkgs:
+    mkShell = shellFromPkgs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
         (system:
           {
-            devShell = shellFromNixpkgs nixpkgs.legacyPackages.${system};
+            devShell = shellFromPkgs nixpkgs.legacyPackages.${system};
           }
         );
 
     simpleShell = buildInputs:
       mkShell
-        (nixpkgs:
-          nixpkgs.mkShell {
-            buildInputs = lib.attrsByPaths buildInputs nixpkgs;
+        (pkgs:
+          pkgs.mkShell {
+            buildInputs = lib.attrsByPaths buildInputs pkgs;
           }
         );
   };
