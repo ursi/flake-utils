@@ -31,6 +31,14 @@
           }
         );
 
+    /*  Returns an array of attributes based off path strings
+
+        Example:
+          attrsByPaths [ "a" "b" "c.d"] x
+          => [ x.a x.b x.c.d ]
+          attrsByPaths [ "a" "b" "c.d"] { a = 1; b = 2; }
+          => throws
+    */
     lib.attrsByPaths = paths: set:
       let
         getPath = set: path:
@@ -50,6 +58,22 @@
               (builtins.attrNames inputs);
         };
 
+    /* Make a nix shell out of a lambda of type `pkgs -> shell`
+
+       Example:
+         {
+           outputs = { self, nixpkgs, utils }:
+             utils.mkShell
+               (pkgs: with pkgs;
+                 mkShell {
+                   buildInputs = [ a b c.d ];
+                   shellHook = ''echo "Hello, World!"''
+                 }
+               )
+               nixpkgs
+
+         }
+    */
     mkShell = shellFromPkgs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
         (system:
@@ -58,6 +82,14 @@
           }
         );
 
+    /* Make a nix shell with the package names in a list
+
+       Example:
+         {
+           outputs = { self, nixpkgs, utils }:
+             utils.simpleShell [ "a" "b" "c.d"] nixpkgs;
+         }
+    */
     simpleShell = buildInputs:
       mkShell
         (pkgs:
