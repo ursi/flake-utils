@@ -31,6 +31,10 @@
           }
         );
 
+    defaultSystems = pkgsToOutputs: nixpkgs:
+      flake-utils.lib.eachDefaultSystem
+        (system: pkgsToOutputs nixpkgs.legacyPackages.${system});
+
     /*  Returns an array of attributes based off path strings
 
         Example:
