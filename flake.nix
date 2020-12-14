@@ -54,13 +54,10 @@
       in
         map (getPath set) paths;
 
-    mkFlakePackages = system: inputs: _: _:
-        {
-          flakePackages =
-            map
-              (name: inputs.${name}.defaultPackage.${system})
-              (builtins.attrNames inputs);
-        };
+    defaultPackages = system: inputs:
+      map
+        (name: inputs.${name}.defaultPackage.${system})
+        (builtins.attrNames inputs);
 
     /* Make a nix shell out of a lambda of type `pkgs -> shell`
 
