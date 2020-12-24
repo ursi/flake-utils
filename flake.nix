@@ -31,9 +31,12 @@
           }
         );
 
-    defaultSystems = pkgsToOutputs: nixpkgs:
+    defaultSystems = mkOutputs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
-        (system: pkgsToOutputs nixpkgs.legacyPackages.${system});
+        (system: mkOutputs {
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit system;
+        });
 
     /*  Returns an array of attributes based off path strings
 
