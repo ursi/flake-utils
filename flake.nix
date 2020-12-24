@@ -62,27 +62,27 @@
         (name: inputs.${name}.defaultPackage.${system})
         (builtins.attrNames inputs);
 
-    /* Make a nix shell out of a lambda of type `pkgs -> shell`
+    /* Make a nix shell out of a lambda of type `{ pkgs, system } -> set`
 
        Example:
          {
            outputs = { self, nixpkgs, utils }:
              utils.mkShell
-               (pkgs: with pkgs;
-                 mkShell {
+               ({ pkgs, ... }: with pkgs;
+                 {
                    buildInputs = [ a b c.d ];
-                   shellHook = ''echo "Hello, World!"''
+                   shellHook = ''echo "Hello, World!"'';
                  }
                )
                nixpkgs
 
          }
     */
-    mkShell = shellFromPkgs: nixpkgs:
-      flake-utils.lib.eachDefaultSystem
-        (system:
+    mkShell = mkShell':
+      defaultSystems
+        ({ pkgs, ... } @ args:
           {
-            devShell = shellFromPkgs nixpkgs.legacyPackages.${system};
+            devShell = pkgs.mkShell (mkShell' args);
           }
         );
 
@@ -95,11 +95,6 @@
          }
     */
     simpleShell = buildInputs:
-      mkShell
-        (pkgs:
-          pkgs.mkShell {
-            buildInputs = lib.attrsByPaths buildInputs pkgs;
-          }
-        );
+      mkShell ({ pkgs, ... }: { buildInputs = lib.attrsByPaths buildInputs pkgs; });
   };
 }
