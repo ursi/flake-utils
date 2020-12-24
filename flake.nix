@@ -31,6 +31,24 @@
           }
         );
 
+    /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
+
+       Example:
+         {
+           outputs = { self, nixpkgs, utils }:
+             utils.defaultSystems
+               ({ pkgs, ... }: with pkgs;
+                 {
+                   devShell = mkShell {
+                     buildInputs = [ a b c.d ];
+                     shellHook = ''echo "Hello, World!"'';
+                   };
+                 }
+               )
+               nixpkgs
+
+         }
+    */
     defaultSystems = mkOutputs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
         (system: mkOutputs {
