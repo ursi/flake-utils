@@ -2,34 +2,53 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }: rec {
-    builders.simple-js = {
-      name,
-      version,
-      nixpkgs,
-      path,
-      systems ? flake-utils.lib.defaultSystems,
-    }:
-      flake-utils.lib.eachSystem systems
-        (system:
-          with nixpkgs.legacyPackages.${system};
+    builders =
+      { writeJsScriptBin =
+          { name
+          , js
+          , system ? "x86_64-linux"
+          , pkgs ? nixpkgs.legacyPackages.${system}
+          , node ? pkgs.nodejs
+          }:
+            let
+            in
+              pkgs.stdenv.mkDerivation
+                { inherit name;
+                  dontUnpack = true;
+                  jsBin = pkgs.writeScript "${name}.js" ("#! ${node}/bin/node\n" + js);
+                  buildInputs = [ node pkgs.makeWrapper ];
+                  installPhase = "mkdir -p $out/bin; ln -s $jsBin $out/bin/$name";
+                };
 
-          {
-            defaultPackage = stdenv.mkDerivation {
-                inherit path;
-                pname = name;
-                version = version;
-                buildInputs = [ nodejs ];
-                dontUnpack = true;
+        simple-js = {
+          name,
+          version,
+          nixpkgs,
+          path,
+          systems ? flake-utils.lib.defaultSystems,
+        }:
+          flake-utils.lib.eachSystem systems
+            (system:
+              with nixpkgs.legacyPackages.${system};
 
-                installPhase = ''
-                  mkdir -p $out/bin
-                  local ex=$out/bin/${name}
-                  cp $path $ex
-                  chmod +x $ex
-                '';
-              };
-          }
-        );
+              {
+                defaultPackage = stdenv.mkDerivation {
+                    inherit path;
+                    pname = name;
+                    version = version;
+                    buildInputs = [ nodejs ];
+                    dontUnpack = true;
+
+                    installPhase = ''
+                      mkdir -p $out/bin
+                      local ex=$out/bin/${name}
+                      cp $path $ex
+                      chmod +x $ex
+                    '';
+                  };
+              }
+            );
+      };
 
     /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
 
