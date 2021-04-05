@@ -3,52 +3,60 @@
 
   outputs = { self, nixpkgs, flake-utils }: rec {
     builders =
-      { writeJsScriptBin =
-          { name
-          , js
-          , system ? "x86_64-linux"
-          , pkgs ? nixpkgs.legacyPackages.${system}
-          , node ? pkgs.nodejs
-          }:
-            let
-            in
-              pkgs.stdenv.mkDerivation
-                { inherit name;
-                  dontUnpack = true;
-                  jsBin = pkgs.writeScript "${name}.js" ("#! ${node}/bin/node\n" + js);
-                  buildInputs = [ node pkgs.makeWrapper ];
-                  installPhase = "mkdir -p $out/bin; ln -s $jsBin $out/bin/$name";
-                };
-
-        simple-js = {
-          name,
-          version,
-          nixpkgs,
-          path,
-          systems ? flake-utils.lib.defaultSystems,
-        }:
-          flake-utils.lib.eachSystem systems
-            (system:
-              with nixpkgs.legacyPackages.${system};
-
-              {
-                defaultPackage = stdenv.mkDerivation {
-                    inherit path;
-                    pname = name;
-                    version = version;
-                    buildInputs = [ nodejs ];
-                    dontUnpack = true;
-
-                    installPhase = ''
-                      mkdir -p $out/bin
-                      local ex=$out/bin/${name}
-                      cp $path $ex
-                      chmod +x $ex
-                    '';
+      system:
+        let p = nixpkgs.legacyPackages.${system}; in
+        rec
+        { write-js-file =
+            { name
+            , js
+            , node ? p.nodejs
+            , destination ? ""
+            }:
+              let
+                js' =
+                  if node == null then js
+                    js
+                  else
+                    "#! ${node}/bin/node\n" + js;
+              in
+                p.writeTextFile
+                  { name = name + ".js";
+                    text = js';
+                    executable = !builtins.isNull node;
+                    inherit destination;
                   };
-              }
-            );
-      };
+
+          write-js-script-bin = name: js: write-js-file { inherit name js; destination = "/bin/${name}"; };
+
+          simple-js = {
+            name,
+            version,
+            nixpkgs,
+            path,
+            systems ? flake-utils.lib.defaultSystems,
+          }:
+            flake-utils.lib.eachSystem systems
+              (system:
+                with nixpkgs.legacyPackages.${system};
+
+                {
+                  defaultPackage = stdenv.mkDerivation {
+                      inherit path;
+                      pname = name;
+                      version = version;
+                      buildInputs = [ nodejs ];
+                      dontUnpack = true;
+
+                      installPhase = ''
+                        mkdir -p $out/bin
+                        local ex=$out/bin/${name}
+                        cp $path $ex
+                        chmod +x $ex
+                      '';
+                    };
+                }
+              );
+        };
 
     /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
 
