@@ -26,6 +26,8 @@
                     inherit destination;
                   };
 
+          write-js-script = name: js: write-js-file { inherit name js; };
+
           write-js-script-bin = name: js: write-js-file { inherit name js; destination = "/bin/${name}"; };
 
           simple-js = {
