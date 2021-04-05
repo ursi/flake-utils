@@ -17,13 +17,17 @@
                   if node == null then js
                     js
                   else
-                    "#! ${node}/bin/node\n" + js;
+                    ''
+                    #! ${node}/bin/node
+                    ${js}
+                    '';
               in
                 p.writeTextFile
                   { name = name + ".js";
                     text = js';
                     executable = !builtins.isNull node;
                     inherit destination;
+                    # TODO: add checkPhase
                   };
 
           write-js-script = name: js: write-js-file { inherit name js; };
