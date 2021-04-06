@@ -1,9 +1,8 @@
-{
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+{ inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils }: rec {
-    builders =
-      system:
+  outputs = { self, nixpkgs, flake-utils }:
+    rec
+    { builders = system:
         let p = nixpkgs.legacyPackages.${system}; in
         rec
         { write-js-file =
@@ -22,16 +21,15 @@
                     ${js}
                     '';
               in
-                p.writeTextFile
-                  { name = name + ".js";
-                    text = js';
-                    executable = !builtins.isNull node;
-                    inherit destination;
-                    # TODO: add checkPhase
-                  };
+              p.writeTextFile
+                { name = name + ".js";
+                  text = js';
+                  executable = !builtins.isNull node;
+                  inherit destination;
+                  # TODO: add checkPhase
+                };
 
           write-js-script = name: js: write-js-file { inherit name js; };
-
           write-js-script-bin = name: js: write-js-file { inherit name js; destination = "/bin/${name}"; };
 
           simple-js = {
@@ -67,16 +65,14 @@
     /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
 
        Example:
-         {
-           outputs = { self, nixpkgs, utils }:
+         { outputs = { self, nixpkgs, utils }:
              utils.defaultSystems
                ({ pkgs, ... }: with pkgs;
-                 {
-                   devShell = mkShell {
-                     buildInputs = [ a b c.d ];
-                     shellHook = ''echo "Hello, World!"'';
-                   };
-                 }
+                  { devShell = mkShell
+                      { buildInputs = [ a b c.d ];
+                        shellHook = ''echo "Hello, World!"'';
+                      };
+                  }
                )
                nixpkgs
 
@@ -84,10 +80,11 @@
     */
     defaultSystems = mkOutputs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
-        (system: mkOutputs {
-          pkgs = nixpkgs.legacyPackages.${system};
-          inherit system;
-        });
+        (system: mkOutputs
+          { pkgs = nixpkgs.legacyPackages.${system};
+            inherit system;
+          }
+        );
 
     /*  Returns an array of attributes based off path strings
 
@@ -106,7 +103,7 @@
             (throw "attribute does not exist: ${path}")
             set;
       in
-        map (getPath set) paths;
+      map (getPath set) paths;
 
     defaultPackages = system: inputs:
       map
@@ -120,10 +117,9 @@
            outputs = { self, nixpkgs, utils }:
              utils.mkShell
                ({ pkgs, ... }: with pkgs;
-                 {
-                   buildInputs = [ a b c.d ];
-                   shellHook = ''echo "Hello, World!"'';
-                 }
+                  { buildInputs = [ a b c.d ];
+                    shellHook = ''echo "Hello, World!"'';
+                  }
                )
                nixpkgs
 
@@ -131,17 +127,12 @@
     */
     mkShell = mkShell':
       defaultSystems
-        ({ pkgs, ... } @ args:
-          {
-            devShell = pkgs.mkShell (mkShell' args);
-          }
-        );
+        ({ pkgs, ... }@args: { devShell = pkgs.mkShell (mkShell' args); });
 
     /* Make a nix shell with the package names in a list
 
        Example:
-         {
-           outputs = { self, nixpkgs, utils }:
+         { outputs = { self, nixpkgs, utils }:
              utils.simpleShell [ "a" "b" "c.d"] nixpkgs;
          }
     */
