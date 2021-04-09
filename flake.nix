@@ -1,6 +1,6 @@
 { inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { nixpkgs, flake-utils, ... }:
     rec
     { builders = system:
         let p = nixpkgs.legacyPackages.${system}; in
@@ -36,13 +36,15 @@
     /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
 
        Example:
-         { outputs = { self, nixpkgs, utils }:
+         { outputs = { nixpkgs, utils, ... }:
              utils.defaultSystems
-               ({ pkgs, ... }: with pkgs;
-                  { devShell = mkShell
-                      { buildInputs = [ a b c.d ];
-                        shellHook = ''echo "Hello, World!"'';
-                      };
+               ({ pkgs, ... }:
+                  with pkgs;
+                  { devShell =
+                      mkShell
+                        { buildInputs = [ a b c.d ];
+                          shellHook = ''echo "Hello, World!"'';
+                        };
                   }
                )
                nixpkgs
@@ -52,9 +54,9 @@
     defaultSystems = mkOutputs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
         (system: mkOutputs
-          { pkgs = nixpkgs.legacyPackages.${system};
-            inherit system;
-          }
+           { pkgs = nixpkgs.legacyPackages.${system};
+             inherit system;
+           }
         );
 
     /*  Returns an array of attributes based off path strings
@@ -85,9 +87,10 @@
 
        Example:
          {
-           outputs = { self, nixpkgs, utils }:
+           outputs = { nixpkgs, utils, ... }:
              utils.mkShell
-               ({ pkgs, ... }: with pkgs;
+               ({ pkgs, ... }:
+                  with pkgs;
                   { buildInputs = [ a b c.d ];
                     shellHook = ''echo "Hello, World!"'';
                   }
@@ -103,7 +106,7 @@
     /* Make a nix shell with the package names in a list
 
        Example:
-         { outputs = { self, nixpkgs, utils }:
+         { outputs = { nixpkgs, utils, ... }:
              utils.simpleShell [ "a" "b" "c.d"] nixpkgs;
          }
     */
