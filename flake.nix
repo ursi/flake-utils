@@ -1,9 +1,10 @@
 { inputs =
-    { flake-utils.url = "github:numtide/flake-utils";
+    { devshell.url = "github:numtide/devshell";
+      flake-utils.url = "github:numtide/flake-utils";
       nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     };
 
-  outputs = { nixpkgs, flake-utils, ... }:
+  outputs = { nixpkgs, devshell, flake-utils, ... }:
     rec
     { builders = system:
         let p = nixpkgs.legacyPackages.${system}; in
@@ -36,30 +37,34 @@
           write-js-script-bin = name: js: write-js-file { inherit name js; destination = "/bin/${name}"; };
         };
 
-    /* Make an outputs object out of a lambda of type `{ pkgs, system } -> set`
+    /* Make an outputs object out of a lambda of type `{ mkShell, pkgs, system } -> set`
 
        Example:
          { outputs = { nixpkgs, utils, ... }:
              utils.defaultSystems
-               ({ pkgs, ... }:
-                  with pkgs;
+               ({ mkShell, pkgs, ... }:
                   { devShell =
                       mkShell
-                        { buildInputs = [ a b c.d ];
-                          shellHook = ''echo "Hello, World!"'';
+                        { packages = with pkgs; [ a b c.d ];
+                          devshell.startup.main.text = ''echo "Hello, World!"'';
                         };
                   }
                )
                nixpkgs
-
          }
     */
     defaultSystems = mkOutputs: nixpkgs:
       flake-utils.lib.eachDefaultSystem
-        (system: mkOutputs
-           { pkgs = nixpkgs.legacyPackages.${system};
-             inherit system;
-           }
+        (system:
+           mkOutputs
+             (let
+                set =
+                  { pkgs = nixpkgs.legacyPackages.${system};
+                    inherit system;
+                  };
+              in
+              { inherit (import devshell set) mkShell; } // set
+             )
         );
 
     /*  Returns an array of attributes based off path strings
