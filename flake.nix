@@ -1,43 +1,11 @@
 { inputs =
     { devshell.url = "github:numtide/devshell";
       flake-utils.url = "github:numtide/flake-utils";
-      nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     };
 
-  outputs = { nixpkgs, devshell, flake-utils, ... }:
+  outputs = { devshell, flake-utils, ... }:
     rec
-    { builders = system:
-        let p = nixpkgs.legacyPackages.${system}; in
-        rec
-        { write-js-file =
-            { name
-            , js
-            , node ? p.nodejs
-            , destination ? ""
-            }:
-              let
-                js' =
-                  if node == null then js
-                    js
-                  else
-                    ''
-                    #! ${node}/bin/node
-                    ${js}
-                    '';
-              in
-              p.writeTextFile
-                { name = name + ".js";
-                  text = js';
-                  executable = !builtins.isNull node;
-                  inherit destination;
-                  # TODO: add checkPhase
-                };
-
-          write-js-script = name: js: write-js-file { inherit name js; };
-          write-js-script-bin = name: js: write-js-file { inherit name js; destination = "/bin/${name}"; };
-        };
-
-      /* Make an outputs object out of a lambda of type `{ mkShell, pkgs, system } -> set`
+    { /* Make an outputs object out of a lambda of type `{ mkShell, pkgs, system } -> set`
 
          Example:
            { outputs = { nixpkgs, utils, ... }:
@@ -75,16 +43,17 @@
             attrsByPaths [ "a" "b" "c.d"] { a = 1; b = 2; }
             => throws
       */
-      lib.attrsByPaths = paths: set:
-        let
-          getPath = set: path:
-            with nixpkgs.lib;
-            attrByPath
-              (splitString "." path)
-              (throw "attribute does not exist: ${path}")
-              set;
-        in
-        map (getPath set) paths;
+      lib = l:
+        { attrsByPaths = paths: set:
+            let
+              getPath = set: path:
+                l.attrByPath
+                  (l.splitString "." path)
+                  (throw "attribute does not exist: ${path}")
+                  set;
+            in
+            map (getPath set) paths;
+        };
 
       defaultPackages = system: inputs:
         map
@@ -119,6 +88,6 @@
            }
       */
       simpleShell = buildInputs:
-        mkShell ({ pkgs, ... }: { buildInputs = lib.attrsByPaths buildInputs pkgs; });
+        mkShell ({ pkgs, ... }: { buildInputs = (lib pkgs.lib).attrsByPaths buildInputs pkgs; });
     };
 }
