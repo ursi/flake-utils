@@ -1,20 +1,20 @@
 { inputs =
-    { devshell.url = "github:numtide/devshell";
-      flake-utils.url = "github:numtide/flake-utils";
+    { flake-utils.url = "github:numtide/flake-utils";
+      make-shell.url = "github:ursi/nix-make-shell";
     };
 
-  outputs = { devshell, flake-utils, ... }:
+  outputs = { flake-utils, make-shell, ... }:
     rec
-    { /* Make an outputs object out of a lambda of type `{ mkShell, pkgs, system } -> set`
+    { /* Make an outputs object out of a lambda of type `{ make-shell, pkgs, system } -> set`
 
          Example:
            { outputs = { nixpkgs, utils, ... }:
                utils.defaultSystems
-                 ({ mkShell, pkgs, ... }:
+                 ({ make-shell, pkgs, ... }:
                     { devShell =
-                        mkShell
+                        make-shell
                           { packages = with pkgs; [ a b c.d ];
-                            devshell.startup.main.text = ''echo "Hello, World!"'';
+                            shellHook = ''echo "Hello, World!"'';
                           };
                     }
                  )
@@ -24,15 +24,11 @@
       defaultSystems = mkOutputs: nixpkgs:
         flake-utils.lib.eachDefaultSystem
           (system:
+             let pkgs = nixpkgs.legacyPackages.${system}; in
              mkOutputs
-               (let
-                  set =
-                    { pkgs = nixpkgs.legacyPackages.${system};
-                      inherit system;
-                    };
-                in
-                { inherit (import devshell set) mkShell; } // set
-               )
+               { make-shell =  make-shell { inherit pkgs system; };
+                 inherit pkgs system;
+               }
           );
 
       /*  Returns an array of attributes based off path strings
