@@ -1,20 +1,5 @@
 {
   "nodes": {
-    "devshell": {
-      "locked": {
-        "lastModified": 1618435930,
-        "narHash": "sha256-qyPVdXxNJnhckOtgGOCPOmRpuWVnirDNZ+RvH20wwXU=",
-        "owner": "numtide",
-        "repo": "devshell",
-        "rev": "d0bb9b6c0fd12d51b3b10bd9a871dc3e7479f980",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "devshell",
-        "type": "github"
-      }
-    },
     "flake-utils": {
       "locked": {
         "lastModified": 1618217525,
@@ -30,10 +15,25 @@
         "type": "github"
       }
     },
+    "make-shell": {
+      "locked": {
+        "lastModified": 1618621875,
+        "narHash": "sha256-BLgERxhECDbNFcf5VdqhraWC/jsAAJbJG3n67iqWT4M=",
+        "owner": "ursi",
+        "repo": "nix-make-shell",
+        "rev": "908f54ca8a3c5e45a2689aac27ba75aa5a02adaa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ursi",
+        "repo": "nix-make-shell",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "devshell": "devshell",
-        "flake-utils": "flake-utils"
+        "flake-utils": "flake-utils",
+        "make-shell": "make-shell"
       }
     }
   },
