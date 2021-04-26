@@ -28,7 +28,7 @@
                             let
                               args = functionArgs (v.__functor null);
 
-                              test-arg = l.flip elem (attrNames args );
+                              test-arg = l.flip elem (attrNames args);
                             in
                             if test-arg "system" then
                               if test-arg "pkgs" && !args.pkgs then
