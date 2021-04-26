@@ -29,8 +29,16 @@
                               args = functionArgs (v.__functor null);
 
                               test-arg = l.flip elem (attrNames args);
+
+                              args-check =
+                                l.pipe args
+                                  [ (l.flip removeAttrs [ "pkgs" "system" ])
+                                    (l.filterAttrs (_: v: !v))
+                                    attrNames
+                                    (a: length a == 0)
+                                  ];
                             in
-                            if test-arg "system" then
+                            if test-arg "system" && args-check then
                               if test-arg "pkgs" && !args.pkgs then
                                 _: v { inherit pkgs system; }
                               else

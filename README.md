@@ -22,7 +22,7 @@ This project has numbered branches which you can use in your flake URLs, the num
 
 - A set: `{ inputs ? null, nixpkgs }`\
   If `inputs` is passed in, `default-systems` will go through all the inputs and check the following (in order)
-    - Is it a functor that takes a `system` argument?
+    - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
 
