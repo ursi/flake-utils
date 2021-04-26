@@ -26,11 +26,12 @@
                           # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
                           if v?__functor then
                             let
-                              test-arg =
-                                l.flip elem (attrNames (functionArgs (v.__functor null)));
+                              args = functionArgs (v.__functor null);
+
+                              test-arg = l.flip elem (attrNames args );
                             in
                             if test-arg "system" then
-                              if test-arg "pkgs" then
+                              if test-arg "pkgs" && !args.pkgs then
                                 _: v { inherit pkgs system; }
                               else
                                 _: v { inherit system; }
