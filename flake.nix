@@ -4,6 +4,7 @@
     };
 
   outputs = { flake-utils, make-shell, ... }:
+    with builtins;
     rec
     { /* Make an outputs object out of a lambda of type `{ make-shell, pkgs, system } -> set`
 
@@ -54,7 +55,7 @@
       defaultPackages = system: inputs:
         map
           (name: inputs.${name}.defaultPackage.${system})
-          (builtins.attrNames inputs);
+          (attrNames inputs);
 
       /* Make a nix shell out of a lambda of type `{ pkgs, system } -> set`
 
