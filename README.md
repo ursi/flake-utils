@@ -26,7 +26,7 @@ This project has numbered branches which you can use in your flake URLs, the num
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
 
-  if any of these are true, `system` is applied appropriately (and potentailly `pkgs` in the case of a functor) and the result is passed to the function, passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`, the set passed the function will be the set of packages, not a set with a `packages` attribute.
+  If any of these are true, `system` is applied appropriately (and potentailly `pkgs` in the case of a functor) and the result is passed to the function, passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`, the set passed the function will be the set of packages, not a set with a `packages` attribute.
 
 
 ### Example
