@@ -6,30 +6,49 @@
   outputs = { flake-utils, make-shell, ... }:
     with builtins;
     rec
-    { /* Make an outputs object out of a lambda of type `{ make-shell, pkgs, system } -> set`
-
-         Example:
-           { outputs = { nixpkgs, utils, ... }:
-               utils.defaultSystems
-                 ({ make-shell, pkgs, ... }:
-                    { devShell =
-                        make-shell
-                          { packages = with pkgs; [ a b c.d ];
-                            shellHook = ''echo "Hello, World!"'';
-                          };
-                    }
-                 )
-                 nixpkgs
-           }
-      */
-      defaultSystems = mkOutputs: nixpkgs:
+    # using `self` (for `self.inputs`) causes an infinite recursion
+    { default-systems = make-outputs: { nixpkgs, inputs ? null }:
         flake-utils.lib.eachDefaultSystem
           (system:
-             let pkgs = nixpkgs.legacyPackages.${system}; in
-             mkOutputs
-               { make-shell =  make-shell { inherit pkgs system; };
-                 inherit pkgs system;
-               }
+             let
+               l = pkgs.lib;
+               pkgs = nixpkgs.legacyPackages.${system};
+             in
+             make-outputs
+               ({ make-shell =  make-shell { inherit pkgs system; };
+                  inherit pkgs system;
+                }
+                // (if isNull inputs then
+                      {}
+                    else
+                      let
+                        filterMap = _: v:
+                          # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
+                          if v?__functor then
+                            let
+                              test-arg =
+                                l.flip elem (attrNames (functionArgs (v.__functor null)));
+                            in
+                            if test-arg "system" then
+                              if test-arg "pkgs" then
+                                _: v { inherit pkgs system; }
+                              else
+                                _: v { inherit system; }
+                            else
+                              null
+                          else if v?defaultPackage then
+                            _: v.defaultPackage.${system}
+                          else if v?packages then
+                            _: v.packages.${system}
+                          else
+                            null;
+                      in
+                      l.pipe (removeAttrs inputs [ "self" ])
+                        [ (l.filterAttrs (n: v: !isNull (filterMap n v)))
+                          (l.mapAttrs (n: v: filterMap n v null))
+                        ]
+                   )
+               )
           );
 
       /*  Returns an array of attributes based off path strings
