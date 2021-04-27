@@ -1,6 +1,6 @@
 { inputs =
     { flake-utils.url = "github:numtide/flake-utils";
-      make-shell.url = "github:ursi/nix-make-shell";
+      make-shell.url = "github:ursi/nix-make-shell/1";
     };
 
   outputs = { flake-utils, make-shell, ... }:
