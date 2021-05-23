@@ -20,8 +20,8 @@ This project has numbered branches which you can use in your flake URLs, the num
 
   and returns a set with the standard flake attributes, minus the `system` sub-attributes
 
-- A set: `{ inputs ? null, nixpkgs }`\
-  If `inputs` is passed in, `default-systems` will go through all the inputs and check the following (in order)
+- A set of inputs that must contain a `nixpkgs` attribute:\
+  `default-systems` will go through all the inputs and check the following (in order)
     - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
@@ -33,12 +33,13 @@ This project has numbered branches which you can use in your flake URLs, the num
 
 ```nix
 { inputs =
-    { functor-dep.url = "...";
+    { nixpkgs.url = "...";
+      functor-dep.url = "...";
       default-package-dep.url = "...";
       packages-dep.url = "...";
     };
 
-  outputs = { nixpkgs, utils, ... }@inputs:
+  outputs = { utils, ... }@inputs:
     utils.default-systems
       ({ make-shell
        , pkgs
@@ -62,6 +63,6 @@ This project has numbered branches which you can use in your flake URLs, the num
                };
          }
       )
-      { inherit inputs nixpkgs; };
+      inputs;
 }
 ```

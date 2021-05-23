@@ -7,55 +7,52 @@
     with builtins;
     rec
     # using `self` (for `self.inputs`) causes an infinite recursion
-    { default-systems = make-outputs: { nixpkgs, inputs ? null }:
+    { default-systems = make-outputs: inputs:
         flake-utils.lib.eachDefaultSystem
           (system:
              let
                l = pkgs.lib;
-               pkgs = nixpkgs.legacyPackages.${system};
+               pkgs = inputs.nixpkgs.legacyPackages.${system};
              in
              make-outputs
                ({ make-shell =  make-shell { inherit pkgs system; };
                   inherit pkgs system;
                 }
-                // (if isNull inputs then
-                      {}
-                    else
-                      let
-                        filterMap = _: v:
-                          # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
-                          if v?__functor then
-                            let
-                              args = functionArgs (v.__functor null);
+                // (let
+                      filterMap = _: v:
+                        # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
+                        if v?__functor then
+                          let
+                            args = functionArgs (v.__functor null);
 
-                              test-arg = l.flip elem (attrNames args);
+                            test-arg = l.flip elem (attrNames args);
 
-                              args-check =
-                                l.pipe args
-                                  [ (l.flip removeAttrs [ "pkgs" "system" ])
-                                    (l.filterAttrs (_: v: !v))
-                                    attrNames
-                                    (a: length a == 0)
-                                  ];
-                            in
-                            if test-arg "system" && args-check then
-                              if test-arg "pkgs" && !args.pkgs then
-                                _: v { inherit pkgs system; }
-                              else
-                                _: v { inherit system; }
+                            args-check =
+                              l.pipe args
+                                [ (l.flip removeAttrs [ "pkgs" "system" ])
+                                  (l.filterAttrs (_: v: !v))
+                                  attrNames
+                                  (a: length a == 0)
+                                ];
+                          in
+                          if test-arg "system" && args-check then
+                            if test-arg "pkgs" && !args.pkgs then
+                              _: v { inherit pkgs system; }
                             else
-                              null
-                          else if v?defaultPackage then
-                            _: v.defaultPackage.${system}
-                          else if v?packages then
-                            _: v.packages.${system}
+                              _: v { inherit system; }
                           else
-                            null;
-                      in
-                      l.pipe (removeAttrs inputs [ "self" ])
-                        [ (l.filterAttrs (n: v: !isNull (filterMap n v)))
-                          (l.mapAttrs (n: v: filterMap n v null))
-                        ]
+                            null
+                        else if v?defaultPackage then
+                          _: v.defaultPackage.${system}
+                        else if v?packages then
+                          _: v.packages.${system}
+                        else
+                          null;
+                    in
+                    l.pipe (removeAttrs inputs [ "self" ])
+                      [ (l.filterAttrs (n: v: !isNull (filterMap n v)))
+                        (l.mapAttrs (n: v: filterMap n v null))
+                      ]
                    )
                )
           );
