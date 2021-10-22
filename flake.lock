@@ -17,11 +17,11 @@
     },
     "make-shell": {
       "locked": {
-        "lastModified": 1625172355,
-        "narHash": "sha256-+B6thE3Mgx5sz6Lbs2TKwMAB97pvnwHsDuD18cInClk=",
+        "lastModified": 1634940815,
+        "narHash": "sha256-P69OmveboXzS+es1vQGS4bt+ckwbeIExqxfGLjGuJqA=",
         "owner": "ursi",
         "repo": "nix-make-shell",
-        "rev": "a2e0314a8066d7c19cc5a6b5c26dd9167943164a",
+        "rev": "8add91681170924e4d0591b22f294aee3f5516f9",
         "type": "github"
       },
       "original": {
