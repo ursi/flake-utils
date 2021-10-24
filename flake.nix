@@ -19,7 +19,7 @@
                   inherit pkgs system;
                 }
                 // (let
-                      filterMap = _: v:
+                      filterHelper = v:
                         # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
                         if v?__functor then
                           let
@@ -50,8 +50,8 @@
                           null;
                     in
                     l.pipe (removeAttrs inputs [ "self" ])
-                      [ (l.filterAttrs (n: v: !isNull (filterMap n v)))
-                        (l.mapAttrs (n: v: filterMap n v null))
+                      [ (l.filterAttrs (_: v: !isNull (filterHelper v)))
+                        (l.mapAttrs (_: v: filterHelper v null))
                       ]
                    )
                )
