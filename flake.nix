@@ -45,6 +45,8 @@
                           _: v.defaultPackage.${system}
                         else if v?packages then
                           _: v.packages.${system}
+                        else if v?legacyPackages then
+                          _: v.legacyPackages.${system}
                         else
                           null;
                     in

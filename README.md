@@ -25,8 +25,9 @@ This project has numbered branches which you can use in your flake URLs, the num
     - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
+    - Does it have `legacyPackages`?
 
-  If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`, the attribute set passed to the function will be the set of packages, not a set with a `packages` attribute.
+  If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 
 
 ### Example
@@ -37,12 +38,14 @@ This project has numbered branches which you can use in your flake URLs, the num
       functor-dep.url = "...";
       default-package-dep.url = "...";
       packages-dep.url = "...";
+      pkgs-old.url = "github:NixOS/nixpkgs/...";
     };
 
   outputs = { utils, ... }@inputs:
     utils.default-systems
       ({ make-shell
        , pkgs
+       , pkgs-old
        , functor-dep
        , default-package-dep
        , packages-dep
@@ -57,6 +60,7 @@ This project has numbered branches which you can use in your flake URLs, the num
                    [ defalut-package-dep
                      packages-dep.package1
                      packages-dep.package2
+                     pkgs-old.packag3
                    ];
 
                  setup = ''echo "Hello, World!"'';
