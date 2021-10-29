@@ -22,10 +22,10 @@ This project has numbered branches which you can use in your flake URLs, the num
 
 - An attribute set of inputs that must contain a `nixpkgs` attribute:\
   `default-systems` will go through all the inputs and check the following (in order)
-    - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
     - Does it have `legacyPackages`?
+    - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
 
   If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 
