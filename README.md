@@ -6,9 +6,14 @@ This project has numbered branches which you can use in your flake URLs, the num
 
 ## default-systems
 
-`default-systems` takes in two arguments:
+`default-systems` is just `for-systems` (defined below) with the list of systems supported by nixpkgs and built by hydra passed as the first argument.
 
-- a function that takes
+## for-systems
+
+`for-systems` takes in three arguments:
+
+- A list of strings representing which systems to build the flake for
+- A function that takes
 
   ```
   { make-shell # https://github.com/ursi/nix-make-shell
@@ -19,15 +24,14 @@ This project has numbered branches which you can use in your flake URLs, the num
   ```
 
   and returns an attribute set with the standard flake attributes, minus the `system` sub-attributes
-
 - An attribute set of inputs that must contain a `nixpkgs` attribute:\
-  `default-systems` will go through all the inputs and check the following (in order)
+  `for-systems` will go through all the inputs and check the following (in order)
     - Does it have a `defaultPackage`?
     - Does it have `packages`?
     - Does it have `legacyPackages`?
     - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
 
-  If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the first argument to `default-systems` (the one in the previous bullet point). For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
+  If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `for-systems` (the one in the previous bullet point). For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 
 
 ### Example

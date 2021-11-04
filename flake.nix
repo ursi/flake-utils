@@ -5,9 +5,12 @@
 
   outputs = { flake-utils, make-shell, ... }:
     with builtins;
-    { default-systems = make-outputs: inputs:
+    rec
+    { default-systems = for-systems flake-utils.lib.defaultSystems;
+
+      for-systems = systems: make-outputs: inputs:
                                       # ^ using `self` (for `self.inputs`) causes an infinite recursion
-        flake-utils.lib.eachDefaultSystem
+        flake-utils.lib.eachSystem systems
           (system:
              let
                l = pkgs.lib;
