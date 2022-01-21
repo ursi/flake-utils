@@ -6,7 +6,9 @@
   outputs = { flake-utils, make-shell, ... }:
     with builtins;
     rec
-    { for-default-systems = for-systems flake-utils.lib.defaultSystems;
+    { default-systems = flake-utils.lib.defaultSystems;
+
+      for-default-systems = for-systems default-systems;
 
       for-systems = systems: make-outputs: inputs:
                                            # ^ using `self` (for `self.inputs`) causes an infinite recursion
