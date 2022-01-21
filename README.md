@@ -4,9 +4,9 @@ The goal of this project is to make flakes as nice to use as they can be. It's m
 
 This project has numbered branches which you can use in your flake URLs, the number will be bumped up whenever there is a breaking change, so you should aways be safe to upgrade if you don't change that number.
 
-## default-systems
+## for-default-systems
 
-`default-systems` is just `for-systems` (defined below) with the list of systems supported by nixpkgs and built by hydra passed as the first argument.
+`for-default-systems` is just `for-systems` (defined below) with the list of systems supported by nixpkgs and built by hydra passed as the first argument.
 
 ## for-systems
 
@@ -46,7 +46,7 @@ This project has numbered branches which you can use in your flake URLs, the num
     };
 
   outputs = { utils, ... }@inputs:
-    utils.default-systems
+    utils.for-default-systems
       ({ make-shell
        , pkgs
        , pkgs-old
