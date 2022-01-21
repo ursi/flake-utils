@@ -10,13 +10,20 @@
 
       for-default-systems = for-systems default-systems;
 
-      for-systems = systems: make-outputs: inputs:
-                                           # ^ using `self` (for `self.inputs`) causes an infinite recursion
+      for-systems = systems: make-outputs: make-pkgs: inputs:
+        for-systems-with-pkgs
+          systems
+          make-outputs
+          (system: inputs.nixpkgs.legacyPackages.${system})
+          inputs;
+
+      for-systems-with-pkgs = systems: make-outputs: make-pkgs: inputs:
+                                                                # ^ using `self` (for `self.inputs`) causes an infinite recursion
         flake-utils.lib.eachSystem systems
           (system:
              let
                l = pkgs.lib;
-               pkgs = inputs.nixpkgs.legacyPackages.${system};
+               pkgs = make-pkgs system;
              in
              make-outputs
                ({ make-shell =  make-shell { inherit pkgs system; };
