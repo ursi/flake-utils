@@ -9,7 +9,7 @@
     { default-systems = for-systems flake-utils.lib.defaultSystems;
 
       for-systems = systems: make-outputs: inputs:
-                                      # ^ using `self` (for `self.inputs`) causes an infinite recursion
+                                           # ^ using `self` (for `self.inputs`) causes an infinite recursion
         flake-utils.lib.eachSystem systems
           (system:
              let
