@@ -10,7 +10,7 @@
 
       for-default-systems = for-systems default-systems;
 
-      for-systems = systems: make-outputs: make-pkgs: inputs:
+      for-systems = systems: make-outputs: inputs:
         for-systems-with-pkgs
           systems
           make-outputs
