@@ -1,9 +1,6 @@
-{ inputs =
-    { flake-utils.url = "github:numtide/flake-utils";
-      make-shell.url = "github:ursi/nix-make-shell/1";
-    };
+{ inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { flake-utils, make-shell, ... }:
+  outputs = { flake-utils, ... }:
     with builtins;
     rec
     { default-systems = flake-utils.lib.defaultSystems;
@@ -26,9 +23,7 @@
                pkgs = make-pkgs system;
              in
              make-outputs
-               ({ make-shell =  make-shell { inherit pkgs system; };
-                  inherit pkgs system;
-                }
+               ({ inherit pkgs system; }
                 // (let
                       filterHelper = v:
                         # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation

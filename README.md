@@ -16,8 +16,7 @@ This project has numbered branches which you can use in your flake URLs, the num
 - A function that takes
 
   ```
-  { make-shell # https://github.com/ursi/nix-make-shell
-  , pkgs
+  { pkgs
   , system
   , ...
   }
@@ -47,8 +46,7 @@ This project has numbered branches which you can use in your flake URLs, the num
 
   outputs = { utils, ... }@inputs:
     utils.for-default-systems
-      ({ make-shell
-       , pkgs
+      ({ pkgs
        , pkgs-old
        , functor-dep
        , default-package-dep
@@ -58,8 +56,8 @@ This project has numbered branches which you can use in your flake URLs, the num
          { defaultPackage = functor-dep { config = { executable-name = "example"; }; };
 
            devShell =
-             make-shell
-               { packages =
+             pkgs.mkShell
+               { buildInputs =
                    with pkgs;
                    [ defalut-package-dep
                      packages-dep.package1
@@ -67,7 +65,7 @@ This project has numbered branches which you can use in your flake URLs, the num
                      pkgs-old.packag3
                    ];
 
-                 setup = ''echo "Hello, World!"'';
+                 shellHook = ''echo "Hello, World!"'';
                };
          }
       )
