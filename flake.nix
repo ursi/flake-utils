@@ -5,17 +5,13 @@
     rec
     { default-systems = flake-utils.lib.defaultSystems;
 
-      for-default-systems = for-systems default-systems;
-
-      for-systems = systems: make-outputs: inputs:
-        for-systems-with-pkgs
-          systems
-          make-outputs
-          (system: inputs.nixpkgs.legacyPackages.${system})
-          inputs;
-
-      for-systems-with-pkgs = systems: make-outputs: make-pkgs: inputs:
-                                                                # ^ using `self` (for `self.inputs`) causes an infinite recursion
+      make-flake =
+        { inputs
+        , overlays ? []
+        , make-pkgs ? (system: import inputs.nixpkgs { inherit overlays system; })
+        , systems ? default-systems
+        }:
+        make-outputs:
         flake-utils.lib.eachSystem systems
           (system:
              let

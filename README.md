@@ -4,15 +4,18 @@ The goal of this project is to make flakes as nice to use as they can be. It's m
 
 This project has numbered branches which you can use in your flake URLs, the number will be bumped up whenever there is a breaking change, so you should be safe to upgrade if you don't change that number.
 
-## for-default-systems
+## make-flake
 
-`for-default-systems` is just `for-systems` (defined below) with the list of systems [supported by nixpkgs and built by hydra](https://github.com/numtide/flake-utils/blob/c6169a2772643c4a93a0b5ac1c61e296cba68544/default.nix#L2) passed as the first argument.
+`make-flake` takes two arguments:
 
-## for-systems
-
-`for-systems` takes in three arguments:
-
-- A list of strings representing which systems to build the flake for
+- An attribute set that satisfies this parameter
+  ```
+  { inputs
+  , overlays ? []
+  , make-pkgs ? (system: import inputs.nixpkgs { inherit overlays system; })
+  , systems ? default-systems
+  }
+  ```
 - A function that takes
 
   ```
@@ -22,16 +25,16 @@ This project has numbered branches which you can use in your flake URLs, the num
   }
   ```
 
-  and returns an attribute set with the standard flake attributes, minus the `system` sub-attributes
-- An attribute set of inputs that must contain a `nixpkgs` attribute:\
-  `for-systems` will go through all the inputs and check the following (in order)
-    - Does it have a `defaultPackage`?
-    - Does it have `packages`?
-    - Does it have `legacyPackages`?
-    - Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
+### The `input` option
 
-  If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `for-systems` (the one in the previous bullet point). For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
+Every attribute set in `inputs` will be checked for the following things in order:
 
+- Does it have a `defaultPackage`?
+- Does it have `packages`?
+- Does it have `legacyPackages`?
+- Is it a functor that takes a `system` argument? And do all of the other arguments it takes (other than `pkgs`) have defaults?
+
+If any of these are true, `system` is applied appropriately (and potentially `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `make-flake`. For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 
 ### Example
 
@@ -40,12 +43,17 @@ This project has numbered branches which you can use in your flake URLs, the num
     { nixpkgs.url = "...";
       functor-dep.url = "...";
       default-package-dep.url = "...";
+      overlay-dep.url = "...";
       packages-dep.url = "...";
       pkgs-old.url = "github:NixOS/nixpkgs/...";
+      utils.url = "github:ursi/flake-utils/<version>";
     };
 
-  outputs = { utils, ... }@inputs:
-    utils.for-default-systems
+  outputs = { overlay-dep, utils, ... }@inputs:
+    utils.make-flake
+      { inherit inputs;
+        overlays = [ overlay-dep.overlay ];
+      }
       ({ pkgs
        , pkgs-old
        , functor-dep
@@ -60,6 +68,7 @@ This project has numbered branches which you can use in your flake URLs, the num
                { buildInputs =
                    with pkgs;
                    [ defalut-package-dep
+                     package-from-overlay
                      packages-dep.package1
                      packages-dep.package2
                      pkgs-old.package3
@@ -68,7 +77,6 @@ This project has numbered branches which you can use in your flake URLs, the num
                  shellHook = ''echo "Hello, World!"'';
                };
          }
-      )
-      inputs;
+      );
 }
 ```
