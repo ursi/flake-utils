@@ -1,12 +1,12 @@
 # flake-utils
 
-The goal of this project is to make flakes as nice to use as they can be. It's main use currently is the function documented below, but there are others which you can check out in the source code if you like.
+The goal of this project is to make flakes as nice to use as they can be. It's main use currently is the functions documented below, but there are others which you can check out in the source code if you like.
 
-This project has numbered branches which you can use in your flake URLs, the number will be bumped up whenever there is a breaking change, so you should aways be safe to upgrade if you don't change that number.
+This project has numbered branches which you can use in your flake URLs, the number will be bumped up whenever there is a breaking change, so you should be safe to upgrade if you don't change that number.
 
 ## for-default-systems
 
-`for-default-systems` is just `for-systems` (defined below) with the list of systems supported by nixpkgs and built by hydra passed as the first argument.
+`for-default-systems` is just `for-systems` (defined below) with the list of systems [supported by nixpkgs and built by hydra](https://github.com/numtide/flake-utils/blob/c6169a2772643c4a93a0b5ac1c61e296cba68544/default.nix#L2) passed as the first argument.
 
 ## for-systems
 
@@ -62,7 +62,7 @@ This project has numbered branches which you can use in your flake URLs, the num
                    [ defalut-package-dep
                      packages-dep.package1
                      packages-dep.package2
-                     pkgs-old.packag3
+                     pkgs-old.package3
                    ];
 
                  shellHook = ''echo "Hello, World!"'';
