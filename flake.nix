@@ -7,8 +7,8 @@
 
       make-flake =
         { inputs
-        , overlays ? []
         , make-pkgs ? (system: import inputs.nixpkgs { inherit overlays system; })
+        , overlays ? []
         , systems ? default-systems
         }:
         make-outputs:

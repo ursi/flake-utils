@@ -11,8 +11,8 @@ This project has numbered branches which you can use in your flake URLs, the num
 - An attribute set that satisfies this parameter
   ```
   { inputs
-  , overlays ? []
   , make-pkgs ? (system: import inputs.nixpkgs { inherit overlays system; })
+  , overlays ? []
   , systems ? default-systems
   }
   ```
