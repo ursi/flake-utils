@@ -31,25 +31,36 @@
                           _: v.legacyPackages.${system}
                         else if v?__functor then
                           let
-                            args = functionArgs (v.__functor null);
+                            arg-names = functionArgs (v.__functor null);
 
-                            test-arg = l.flip elem (attrNames args);
+                            test-arg = l.flip elem (attrNames arg-names);
 
                             args-check =
-                              l.pipe args
-                                [ (l.flip removeAttrs [ "pkgs" "system" ])
+                              l.pipe arg-names
+                                [ (l.flip removeAttrs [ "lib" "pkgs" "system" ])
                                   (l.filterAttrs (_: v: !v))
                                   attrNames
                                   (a: length a == 0)
                                 ];
+
+                            args =
+                              let
+                                add-missing = name: value:
+                                  if elem name (attrNames arg-names)
+                                     && (name == "system" || !arg-names.${name})
+                                  then a: a // { ${name} = value; }
+                                  else l.id;
+                              in
+                              if args-check then
+                                l.pipe {}
+                                  [ (add-missing "lib" l)
+                                    (add-missing "pkgs" pkgs)
+                                    (add-missing "system" system)
+                                  ]
+                              else
+                                null;
                           in
-                          if test-arg "system" && args-check then
-                            if test-arg "pkgs" && !args.pkgs then
-                              _: v { inherit pkgs system; }
-                            else
-                              _: v { inherit system; }
-                          else
-                            null
+                          _: v args
                         else
                           null;
                     in
