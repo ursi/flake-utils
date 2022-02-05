@@ -5,7 +5,7 @@
     rec
     { default-systems = flake-utils.lib.defaultSystems;
 
-      make-flake =
+      apply-systems =
         { inputs
         , make-pkgs ? (system: import inputs.nixpkgs { inherit overlays system; })
         , overlays ? []

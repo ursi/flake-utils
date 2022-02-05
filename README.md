@@ -4,9 +4,9 @@ The goal of this project is to make flakes as nice to use as they can be. It's m
 
 This project has numbered branches which you can use in your flake URLs, the number will be bumped up whenever there is a breaking change, so you should be safe to upgrade if you don't change that number.
 
-## make-flake
+## apply-systems
 
-`make-flake` takes two arguments:
+`apply-systems` takes two arguments:
 
 - An attribute set that satisfies this parameter
   ```
@@ -34,7 +34,7 @@ Every attribute set in `inputs` will be checked for the following things in orde
 - Does it have `legacyPackages`?
 - Is it a functor that takes some combination of `lib`, `pkgs`, and `system` arguments? And do all of the other arguments it takes (if any) have defaults?
 
-If any of these are true, `system` is applied appropriately (and potentially `lib` or `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `make-flake`. For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
+If any of these are true, `system` is applied appropriately (and potentially `lib` or `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `apply-systems`. For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 
 ### Example
 
@@ -50,7 +50,7 @@ If any of these are true, `system` is applied appropriately (and potentially `li
     };
 
   outputs = { overlay-dep, utils, ... }@inputs:
-    utils.make-flake
+    utils.apply-systems
       { inherit inputs;
         overlays = [ overlay-dep.overlay ];
       }
