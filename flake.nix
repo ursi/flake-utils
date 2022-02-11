@@ -31,7 +31,7 @@
                           _: v.legacyPackages.${system}
                         else if v?__functor then
                           let
-                            arg-names = functionArgs (v.__functor null);
+                            arg-names = l.functionArgs v;
 
                             test-arg = l.flip elem (attrNames arg-names);
 
