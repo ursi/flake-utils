@@ -53,6 +53,7 @@ If any of these are true, `system` is applied appropriately (and potentially `li
     utils.apply-systems
       { inherit inputs;
         overlays = [ overlay-dep.overlay ];
+        systems = [ "aarch64-linux" "x86_64-linux"];
       }
       ({ pkgs
        , pkgs-old
