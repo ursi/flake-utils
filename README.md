@@ -67,7 +67,7 @@ If any of these are true, `system` is applied appropriately (and potentially `li
              pkgs.mkShell
                { buildInputs =
                    with pkgs;
-                   [ defalut-package-dep
+                   [ default-package-dep
                      package-from-overlay
                      packages-dep.package1
                      packages-dep.package2
