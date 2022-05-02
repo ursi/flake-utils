@@ -29,10 +29,10 @@ This project has numbered branches which you can use in your flake URLs, the num
 
 Every attribute set in `inputs` will be checked for the following things in order:
 
+- (Used for libraries) Is it a functor that takes some combination of `lib`, `pkgs`, and `system` arguments? And do all of the other arguments it takes (if any) have defaults?
 - Does it have a `defaultPackage`?
 - Does it have `packages`?
 - Does it have `legacyPackages`?
-- Is it a functor that takes some combination of `lib`, `pkgs`, and `system` arguments? And do all of the other arguments it takes (if any) have defaults?
 
 If any of these are true, `system` is applied appropriately (and potentially `lib` or `pkgs` in the case of a functor) and the result is passed to the function which was passed as the second argument to `apply-systems`. For an input that is being used for `packages`/`legacyPackages`, the attribute set passed to the function will be the set of packages, not a set with a `packages`/`legacyPackages` attribute.
 

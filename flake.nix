@@ -23,13 +23,7 @@
                 // (let
                       filterHelper = v:
                         # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
-                        if v?defaultPackage then
-                          _: v.defaultPackage.${system}
-                        else if v?packages then
-                          _: v.packages.${system}
-                        else if v?legacyPackages then
-                          _: v.legacyPackages.${system}
-                        else if v?__functor then
+                        if v?__functor then
                           let
                             arg-names = l.functionArgs v;
 
@@ -61,6 +55,12 @@
                                 null;
                           in
                           _: v args
+                        else if v?defaultPackage then
+                          _: v.defaultPackage.${system}
+                        else if v?packages then
+                          _: v.packages.${system}
+                        else if v?legacyPackages then
+                          _: v.legacyPackages.${system}
                         else
                           null;
                     in
