@@ -19,7 +19,23 @@
                pkgs = make-pkgs system;
              in
              make-outputs
-               ({ inherit pkgs system; }
+               ({ inherit pkgs system;
+
+                  flakes =
+                    let
+                      f =
+                        mapAttrs
+                          (_: v:
+                             if isAttrs v then
+                               if v?${system}
+                               then v.${system}
+                               else f v
+                             else
+                               v
+                          );
+                    in
+                    f inputs;
+                }
                 // (let
                       filterHelper = v:
                         # since we're inspecting the values to see whether or not they pass the filter, we wrap them in a lambda to keep the lazy evaluation
