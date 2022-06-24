@@ -30,7 +30,7 @@ This project has numbered branches which you can use in your flake URLs, the num
 Every attribute set in `inputs` will be checked for the following things in order:
 
 - (Used for libraries) Is it a functor that takes some combination of `lib`, `pkgs`, and `system` arguments? And do all of the other arguments it takes (if any) have defaults?
-- Does it have a `defaultPackage`?
+- Does it have a `packages.default` or `defaultPackage`?
 - Does it have `packages`?
 - Does it have `legacyPackages`?
 

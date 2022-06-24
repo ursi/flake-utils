@@ -58,7 +58,9 @@
                         else if v?defaultPackage then
                           _: v.defaultPackage.${system}
                         else if v?packages then
-                          _: v.packages.${system}
+                          _: if v.packages.${system}?default
+                             then v.packages.${system}.default
+                             else v.packages.${system}
                         else if v?legacyPackages then
                           _: v.legacyPackages.${system}
                         else
