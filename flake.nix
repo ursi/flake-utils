@@ -96,7 +96,12 @@
 
       default-packages = system: inputs:
         map
-          (name: inputs.${name}.defaultPackage.${system})
+          (name:
+            let input = inputs.${name}; in
+            if input?defaultPackage
+            then input.defaultPackage.${system}
+            else input.packages.${system}.default
+          )
           (attrNames inputs);
     };
 }
